@@ -549,7 +549,7 @@ function _lunch_meat()
     set_stuff_for_environment
     [[ -n "${ANDROID_QUIET_BUILD:-}" ]] || printconfig
 
-    if [[ -z "${ANDROID_QUIET_BUILD}" ]]; then
+    if [[ -z "${ANDROID_QUIET_BUILD}" && -z "${INFINITY_BUILD}" ]]; then
         local spam_for_lunch=$(gettop)/build/make/tools/envsetup/spam_for_lunch
         if [[ -x $spam_for_lunch ]]; then
             $spam_for_lunch
@@ -1224,6 +1224,8 @@ if [ -z "${CCACHE_EXEC}" ]; then
         echo "Error: ccache not found. Please install ccache." >&2
     fi
 fi
+
+grep -L "BUILD_BROKEN_DUP_RULES := true" device/*/*/BoardConfig.mk | xargs -I {} sed -i '$aBUILD_BROKEN_DUP_RULES := true' {}
 
 export ANDROID_BUILD_TOP=$(gettop)
 
