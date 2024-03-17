@@ -6865,7 +6865,7 @@ endif
 
 $(BUILT_TARGET_FILES_PACKAGE): $(BUILT_TARGET_FILES_DIR)
 	@echo "Packaging target files: $@"
-	$(hide) $(SOONG_ZIP) -L 1 -d -o $@ -C $(zip_root) -r $@.list -sha256
+	$(hide) $(SOONG_ZIP) -d -o $@ -C $(zip_root) -r $@.list
 
 .PHONY: target-files-package
 target-files-package: $(BUILT_TARGET_FILES_PACKAGE)
@@ -7187,7 +7187,7 @@ $(APPS_ZIP): $(FULL_SYSTEMIMAGE_DEPS)
 	    echo "No apps to zip up. Generating empty apps archive." ; \
 	    a=$$(mktemp /tmp/XXXXXXX) && touch $$a && zip $@ $$a && zip -d $@ $$a; \
 	else \
-	    $(SOONG_ZIP) -qjX $@ $$apps_to_zip; \
+	    zip -qjX $@ $$apps_to_zip; \
 	fi
 
 ifeq (true,$(EMMA_INSTRUMENT))
@@ -7587,7 +7587,7 @@ INTERNAL_EMULATOR_PACKAGE_TARGET := $(PRODUCT_OUT)/$(name).zip
 
 $(INTERNAL_EMULATOR_PACKAGE_TARGET): $(INTERNAL_EMULATOR_PACKAGE_FILES)
 	@echo "Package: $@"
-	$(hide) $(SOONG_ZIP) -qjX $@ $(INTERNAL_EMULATOR_PACKAGE_FILES)
+	$(hide) zip -qjX $@ $(INTERNAL_EMULATOR_PACKAGE_FILES)
 
 endif
 
@@ -7707,7 +7707,7 @@ $(INTERNAL_SDK_TARGET): $(deps)
 	    HOST_OUT_EXECUTABLES=$(HOST_OUT_EXECUTABLES) HOST_OS=$(HOST_OS) \
 	        development/build/tools/sdk_clean.sh $(PRIVATE_DIR) && \
 	    chmod -R ug+rwX $(PRIVATE_DIR) && \
-	    cd $(dir $@) && $(SOONG_ZIP) -rqX $(notdir $@) $(PRIVATE_NAME) \
+	    cd $(dir $@) && zip -rqX $(notdir $@) $(PRIVATE_NAME) \
 	) || ( rm -rf $(PRIVATE_DIR) $@ && exit 44 )
 
 MAIN_SDK_DIR  := $(sdk_dir)
