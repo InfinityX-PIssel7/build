@@ -163,6 +163,44 @@ $(call soong_config_set,bootclasspath,release_crashrecovery_module,$(RELEASE_CRA
 $(call soong_config_set,ANDROID,release_package_profiling_module,$(RELEASE_PACKAGE_PROFILING_MODULE))
 $(call soong_config_set,bootclasspath,release_package_profiling_module,$(RELEASE_PACKAGE_PROFILING_MODULE))
 
+# Add perf-setup build flag to soong
+# Note: BOARD_PERFSETUP_SCRIPT location must be under platform_testing/scripts/perf-setup/.
+ifdef BOARD_PERFSETUP_SCRIPT
+  $(call soong_config_set,perf,board_perfsetup_script,$(notdir $(BOARD_PERFSETUP_SCRIPT)))
+endif
+# Add target_use_pan_display flag for hardware/libhardware:gralloc.default
+$(call soong_config_set_bool,gralloc,target_use_pan_display,$(if $(filter true,$(TARGET_USE_PAN_DISPLAY)),true,false))
+# Add use_camera_v4l2_hal flag for hardware/libhardware/modules/camera/3_4:camera.v4l2
+$(call soong_config_set_bool,camera,use_camera_v4l2_hal,$(if $(filter true,$(USE_CAMERA_V4L2_HAL)),true,false))
+# Add audioserver_multilib flag for hardware/interfaces/soundtrigger/2.0/default:android.hardware.soundtrigger@2.0-impl
+ifneq ($(strip $(AUDIOSERVER_MULTILIB)),)
+  $(call soong_config_set,soundtrigger,audioserver_multilib,$(AUDIOSERVER_MULTILIB))
+endif
+# Add sim_count, disable_rild_oem_hook, and use_aosp_rild flag for ril related modules
+$(call soong_config_set,ril,sim_count,$(SIM_COUNT))
+ifneq ($(DISABLE_RILD_OEM_HOOK), false)
+  $(call soong_config_set_bool,ril,disable_rild_oem_hook,true)
+endif
+ifneq ($(ENABLE_VENDOR_RIL_SERVICE), true)
+  $(call soong_config_set_bool,ril,use_aosp_rild,true)
+endif
+# Export target_board_platform to soong for hardware/google/graphics/common/libmemtrack:memtrack.$(TARGET_BOARD_PLATFORM)
+$(call soong_config_set,ANDROID,target_board_platform,$(TARGET_BOARD_PLATFORM))
+# Export board_uses_scaler_m2m1shot and board_uses_align_restriction to soong for hardware/google/graphics/common/libscaler:libexynosscaler
+$(call soong_config_set_bool,google_graphics,board_uses_scaler_m2m1shot,$(if $(filter true,$(BOARD_USES_SCALER_M2M1SHOT)),true,false))
+$(call soong_config_set_bool,google_graphics,board_uses_align_restriction,$(if $(filter true,$(BOARD_USES_ALIGN_RESTRICTION)),true,false))
+# Export video_codec variables to soong for exynos modules
+$(call soong_config_set,video_codec,target_soc_name,$(TARGET_SOC_NAME))
+$(call soong_config_set_bool,video_codec,board_use_codec2_hidl_1_2,$(if $(filter true,$(BOARD_USE_CODEC2_HIDL_1_2)),true,false))
+$(call soong_config_set_bool,video_codec,board_support_mfc_enc_bt2020,$(if $(filter true,$(BOARD_SUPPORT_MFC_ENC_BT2020)),true,false))
+$(call soong_config_set_bool,video_codec,board_support_flexible_p010,$(if $(filter true,$(BOARD_SUPPORT_FLEXIBLE_P010)),true,false))
+$(call soong_config_set,video_codec,board_support_mfc_version,$(BOARD_SUPPORT_MFC_VERSION))
+$(call soong_config_set_bool,video_codec,board_use_codec2_aidl,$(if $(BOARD_USE_CODEC2_AIDL),true,false))
+$(call soong_config_set,video_codec,board_gpu_type,$(BOARD_GPU_TYPE))
+$(call soong_config_set_bool,video_codec,board_use_small_secure_memory,$(if $(filter true,$(BOARD_USE_SMALL_SECURE_MEMORY)),true,false))
+ifneq ($(BOARD_USE_MAX_SECURE_RESOURCE),)
+  $(call soong_config_set,video_codec,board_use_max_secure_resource,$(BOARD_USE_MAX_SECURE_RESOURCE))
+endif
 # Export related variables to soong for hardware/google/graphics/common/libacryl:libacryl
 ifdef BOARD_LIBACRYL_DEFAULT_COMPOSITOR
   $(call soong_config_set,acryl,libacryl_default_compositor,$(BOARD_LIBACRYL_DEFAULT_COMPOSITOR))
@@ -176,13 +214,4 @@ endif
 ifdef BOARD_LIBACRYL_G2D_HDR_PLUGIN
   #BOARD_LIBACRYL_G2D_HDR_PLUGIN is set in each board config
   $(call soong_config_set_bool,acryl,libacryl_use_g2d_hdr_plugin,true)
-endif
-
-# Add sim_count, disable_rild_oem_hook, and use_aosp_rild flag for ril related modules
-$(call soong_config_set,ril,sim_count,$(SIM_COUNT))
-ifneq ($(DISABLE_RILD_OEM_HOOK), false)
-  $(call soong_config_set_bool,ril,disable_rild_oem_hook,true)
-endif
-ifneq ($(ENABLE_VENDOR_RIL_SERVICE), true)
-  $(call soong_config_set_bool,ril,use_aosp_rild,true)
 endif
